@@ -475,9 +475,105 @@
                     radial-gradient(circle at 60% 60%, rgba(78, 205, 196, 0.15) 0%, transparent 50%);
             }
         }
+
+        /* Confetti Animation */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        .confetti:nth-child(1) { background: #ff6b6b; left: 10%; animation-delay: 0s; }
+        .confetti:nth-child(2) { background: #4ecdc4; left: 20%; animation-delay: 0.1s; }
+        .confetti:nth-child(3) { background: #45b7d1; left: 30%; animation-delay: 0.2s; }
+        .confetti:nth-child(4) { background: #96ceb4; left: 40%; animation-delay: 0.3s; }
+        .confetti:nth-child(5) { background: #ffeaa7; left: 50%; animation-delay: 0.4s; }
+        .confetti:nth-child(6) { background: #dda0dd; left: 60%; animation-delay: 0.5s; }
+        .confetti:nth-child(7) { background: #98d8c8; left: 70%; animation-delay: 0.6s; }
+        .confetti:nth-child(8) { background: #f7dc6f; left: 80%; animation-delay: 0.7s; }
+        .confetti:nth-child(9) { background: #bb8fce; left: 90%; animation-delay: 0.8s; }
+        .confetti:nth-child(10) { background: #82ccdd; left: 15%; animation-delay: 0.9s; }
+        .confetti:nth-child(11) { background: #ff8a80; left: 25%; animation-delay: 1s; }
+        .confetti:nth-child(12) { background: #a7ffeb; left: 35%; animation-delay: 1.1s; }
+        .confetti:nth-child(13) { background: #ffcc02; left: 45%; animation-delay: 1.2s; }
+        .confetti:nth-child(14) { background: #ff6ec7; left: 55%; animation-delay: 1.3s; }
+        .confetti:nth-child(15) { background: #69f0ae; left: 65%; animation-delay: 1.4s; }
+        .confetti:nth-child(16) { background: #448aff; left: 75%; animation-delay: 1.5s; }
+        .confetti:nth-child(17) { background: #ff9100; left: 85%; animation-delay: 1.6s; }
+        .confetti:nth-child(18) { background: #ea80fc; left: 95%; animation-delay: 1.7s; }
+        .confetti:nth-child(19) { background: #84ffff; left: 5%; animation-delay: 1.8s; }
+        .confetti:nth-child(20) { background: #ffff8d; left: 95%; animation-delay: 1.9s; }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotateZ(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti.square {
+            border-radius: 0;
+        }
+
+        .confetti.circle {
+            border-radius: 50%;
+        }
+
+        .confetti.triangle {
+            width: 0;
+            height: 0;
+            background: transparent;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid #ff6b6b;
+        }
+
+        /* Perfect score celebration */
+        .perfect-score-celebration {
+            animation: perfectScoreZoom 2s ease-out;
+        }
+
+        @keyframes perfectScoreZoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .celebration-text {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            font-weight: 800;
+            margin-top: 15px;
+            animation: celebrationPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes celebrationPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confetti-container"></div>
+    
     <div class="game-container">
         <!-- Game Screen -->
         <div id="game-screen">
@@ -573,6 +669,13 @@
             gameEnded = false;
             gameScreen.classList.remove('hidden');
             endScreen.classList.add('hidden');
+            
+            // Clear confetti and reset celebration effects
+            const confettiContainer = document.getElementById('confetti-container');
+            confettiContainer.innerHTML = '';
+            finalScore.classList.remove('perfect-score-celebration');
+            finalScore.innerHTML = '';
+            
             generateQuestion();
         }
 
@@ -672,13 +775,72 @@
             generateQuestion();
         }
 
+        // Create confetti effect
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti-container');
+            
+            // Clear existing confetti
+            confettiContainer.innerHTML = '';
+            
+            // Create multiple waves of confetti
+            for (let wave = 0; wave < 3; wave++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 25; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.classList.add('confetti');
+                        
+                        // Random shapes
+                        const shapes = ['square', 'circle', 'triangle'];
+                        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+                        confetti.classList.add(randomShape);
+                        
+                        // Random position
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.animationDelay = Math.random() * 2 + 's';
+                        confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                        
+                        // Random colors
+                        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8', '#f7dc6f', '#bb8fce', '#82ccdd'];
+                        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        confettiContainer.appendChild(confetti);
+                    }
+                }, wave * 500);
+            }
+            
+            // Clear confetti after animation
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 6000);
+        }
+
         // End game
         function endGame() {
             gameEnded = true;
             const percentage = Math.round((score / totalQuestions) * 100);
             let message = `You got ${score} out of ${totalQuestions} correct!<br>That's ${percentage}%`;
             
-            if (percentage >= 90) {
+            // Check for perfect score
+            const isPerfectScore = score === totalQuestions;
+            
+            if (percentage === 100) {
+                message += " - PERFECT SCORE! 🎉🏆";
+                finalScore.classList.add('perfect-score-celebration');
+                
+                // Add celebration text
+                setTimeout(() => {
+                    const celebrationText = document.createElement('div');
+                    celebrationText.className = 'celebration-text';
+                    celebrationText.innerHTML = '🎊 AMAZING! CONFETTI RAIN! 🎊';
+                    finalScore.appendChild(celebrationText);
+                }, 500);
+                
+                // Trigger confetti
+                setTimeout(() => {
+                    createConfetti();
+                }, 800);
+                
+            } else if (percentage >= 90) {
                 message += " - Excellent! 🌟";
             } else if (percentage >= 70) {
                 message += " - Great job! 👏";
