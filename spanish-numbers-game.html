@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Numbers Game 🎯</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            min-height: 400px;
+        }
+
+        .title {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .score {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            color: #495057;
+            border: 2px solid #e9ecef;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .number-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .audio-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice-button {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .choice-button:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .choice-button.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .choice-button.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .choice-button.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            font-size: 3rem;
+            margin: 20px 0;
+            min-height: 60px;
+        }
+
+        .next-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .next-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .play-again-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-again-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .final-score {
+            font-size: 2rem;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .number-display {
+                font-size: 3rem;
+            }
+
+            .choice-button {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .bounce {
+            animation: bounce 0.6s;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Screen -->
+        <div id="game-screen">
+            <h1 class="title">🎯 Spanish Numbers</h1>
+            <p class="subtitle">Learn numbers 1-100 in Spanish!</p>
+            
+            <div class="score">
+                <span id="current-question">Question 1</span> | 
+                <span id="score-display">Score: 0/0</span>
+            </div>
+
+            <div class="question-container">
+                <div class="number-display" id="number-display">42</div>
+                <p class="question-text">How do you say this number in Spanish?</p>
+                
+                <button class="audio-button" id="audio-button">
+                    🔊 Listen
+                </button>
+                
+                <div class="choices-container" id="choices-container">
+                    <button class="choice-button" data-choice="0">cuarenta y dos</button>
+                    <button class="choice-button" data-choice="1">cincuenta y tres</button>
+                    <button class="choice-button" data-choice="2">treinta y uno</button>
+                </div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="next-button hidden" id="next-button">Next Question →</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden">
+            <h1 class="title">🎉 Game Complete!</h1>
+            <div class="final-score" id="final-score">
+                You got 8 out of 10 correct!<br>
+                <small>That's 80% - Great job! 🌟</small>
+            </div>
+            <button class="play-again-button" id="play-again-button">🎮 Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Spanish number translations (1-100)
+        const spanishNumbers = {
+            1: "uno", 2: "dos", 3: "tres", 4: "cuatro", 5: "cinco",
+            6: "seis", 7: "siete", 8: "ocho", 9: "nueve", 10: "diez",
+            11: "once", 12: "doce", 13: "trece", 14: "catorce", 15: "quince",
+            16: "dieciséis", 17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte",
+            21: "veintiuno", 22: "veintidós", 23: "veintitrés", 24: "veinticuatro", 25: "veinticinco",
+            26: "veintiséis", 27: "veintisiete", 28: "veintiocho", 29: "veintinueve", 30: "treinta",
+            31: "treinta y uno", 32: "treinta y dos", 33: "treinta y tres", 34: "treinta y cuatro", 35: "treinta y cinco",
+            36: "treinta y seis", 37: "treinta y siete", 38: "treinta y ocho", 39: "treinta y nueve", 40: "cuarenta",
+            41: "cuarenta y uno", 42: "cuarenta y dos", 43: "cuarenta y tres", 44: "cuarenta y cuatro", 45: "cuarenta y cinco",
+            46: "cuarenta y seis", 47: "cuarenta y siete", 48: "cuarenta y ocho", 49: "cuarenta y nueve", 50: "cincuenta",
+            51: "cincuenta y uno", 52: "cincuenta y dos", 53: "cincuenta y tres", 54: "cincuenta y cuatro", 55: "cincuenta y cinco",
+            56: "cincuenta y seis", 57: "cincuenta y siete", 58: "cincuenta y ocho", 59: "cincuenta y nueve", 60: "sesenta",
+            61: "sesenta y uno", 62: "sesenta y dos", 63: "sesenta y tres", 64: "sesenta y cuatro", 65: "sesenta y cinco",
+            66: "sesenta y seis", 67: "sesenta y siete", 68: "sesenta y ocho", 69: "sesenta y nueve", 70: "setenta",
+            71: "setenta y uno", 72: "setenta y dos", 73: "setenta y tres", 74: "setenta y cuatro", 75: "setenta y cinco",
+            76: "setenta y seis", 77: "setenta y siete", 78: "setenta y ocho", 79: "setenta y nueve", 80: "ochenta",
+            81: "ochenta y uno", 82: "ochenta y dos", 83: "ochenta y tres", 84: "ochenta y cuatro", 85: "ochenta y cinco",
+            86: "ochenta y seis", 87: "ochenta y siete", 88: "ochenta y ocho", 89: "ochenta y nueve", 90: "noventa",
+            91: "noventa y uno", 92: "noventa y dos", 93: "noventa y tres", 94: "noventa y cuatro", 95: "noventa y cinco",
+            96: "noventa y seis", 97: "noventa y siete", 98: "noventa y ocho", 99: "noventa y nueve", 100: "cien"
+        };
+
+        // Game state
+        let currentQuestion = 1;
+        let totalQuestions = 10;
+        let score = 0;
+        let currentNumber = 0;
+        let correctAnswer = "";
+        let gameEnded = false;
+
+        // DOM elements
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const numberDisplay = document.getElementById('number-display');
+        const choicesContainer = document.getElementById('choices-container');
+        const feedback = document.getElementById('feedback');
+        const nextButton = document.getElementById('next-button');
+        const audioButton = document.getElementById('audio-button');
+        const currentQuestionEl = document.getElementById('current-question');
+        const scoreDisplay = document.getElementById('score-display');
+        const finalScore = document.getElementById('final-score');
+        const playAgainButton = document.getElementById('play-again-button');
+
+        // Initialize game
+        function initGame() {
+            currentQuestion = 1;
+            score = 0;
+            gameEnded = false;
+            gameScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
+            generateQuestion();
+        }
+
+        // Generate a new question
+        function generateQuestion() {
+            // Reset UI
+            feedback.textContent = '';
+            nextButton.classList.add('hidden');
+            
+            // Update question counter
+            currentQuestionEl.textContent = `Question ${currentQuestion}`;
+            scoreDisplay.textContent = `Score: ${score}/${currentQuestion - 1}`;
+            
+            // Generate random number 1-100
+            currentNumber = Math.floor(Math.random() * 100) + 1;
+            correctAnswer = spanishNumbers[currentNumber];
+            
+            // Display number
+            numberDisplay.textContent = currentNumber;
+            numberDisplay.classList.add('bounce');
+            setTimeout(() => numberDisplay.classList.remove('bounce'), 600);
+            
+            // Generate multiple choice options
+            generateChoices();
+        }
+
+        // Generate 3 multiple choice options
+        function generateChoices() {
+            const choices = [correctAnswer];
+            const allNumbers = Object.keys(spanishNumbers).map(Number);
+            
+            // Add 2 random incorrect answers
+            while (choices.length < 3) {
+                const randomNum = allNumbers[Math.floor(Math.random() * allNumbers.length)];
+                const randomAnswer = spanishNumbers[randomNum];
+                
+                if (!choices.includes(randomAnswer)) {
+                    choices.push(randomAnswer);
+                }
+            }
+            
+            // Shuffle choices
+            for (let i = choices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [choices[i], choices[j]] = [choices[j], choices[i]];
+            }
+            
+            // Update choice buttons
+            const choiceButtons = choicesContainer.querySelectorAll('.choice-button');
+            choiceButtons.forEach((button, index) => {
+                button.textContent = choices[index];
+                button.className = 'choice-button';
+                button.onclick = () => selectChoice(choices[index], button);
+            });
+        }
+
+        // Handle choice selection
+        function selectChoice(selectedAnswer, buttonElement) {
+            const allButtons = choicesContainer.querySelectorAll('.choice-button');
+            
+            // Disable all buttons
+            allButtons.forEach(btn => btn.classList.add('disabled'));
+            
+            if (selectedAnswer === correctAnswer) {
+                // Correct answer
+                buttonElement.classList.add('correct');
+                feedback.textContent = '✅ Correct!';
+                feedback.style.color = '#28a745';
+                score++;
+            } else {
+                // Wrong answer
+                buttonElement.classList.add('incorrect');
+                feedback.textContent = `❌ Wrong! The correct answer is: ${correctAnswer}`;
+                feedback.style.color = '#dc3545';
+                
+                // Highlight correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show next button or end game
+            setTimeout(() => {
+                if (currentQuestion >= totalQuestions) {
+                    endGame();
+                } else {
+                    nextButton.classList.remove('hidden');
+                }
+            }, 1500);
+        }
+
+        // Next question
+        function nextQuestion() {
+            currentQuestion++;
+            generateQuestion();
+        }
+
+        // End game
+        function endGame() {
+            gameEnded = true;
+            const percentage = Math.round((score / totalQuestions) * 100);
+            let message = `You got ${score} out of ${totalQuestions} correct!<br>That's ${percentage}%`;
+            
+            if (percentage >= 90) {
+                message += " - Excellent! 🌟";
+            } else if (percentage >= 70) {
+                message += " - Great job! 👏";
+            } else if (percentage >= 50) {
+                message += " - Good effort! 👍";
+            } else {
+                message += " - Keep practicing! 💪";
+            }
+            
+            finalScore.innerHTML = message;
+            
+            setTimeout(() => {
+                gameScreen.classList.add('hidden');
+                endScreen.classList.remove('hidden');
+            }, 2000);
+        }
+
+        // Audio pronunciation
+        function speakSpanish() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(correctAnswer);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Event listeners
+        nextButton.addEventListener('click', nextQuestion);
+        playAgainButton.addEventListener('click', initGame);
+        audioButton.addEventListener('click', speakSpanish);
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
